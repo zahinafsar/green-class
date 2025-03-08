@@ -33,16 +33,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
             <MessageSquare className="h-4 w-4" />
           </div>
-          <h1 className="text-xl font-semibold">Chats</h1>
+          <h1 className="text-xl font-semibold">Green Class</h1>
         </Link>
-        <div className="flex gap-2">
-          <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-            <Video className="h-4 w-4" />
-          </button>
-          <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-            <PenSquare className="h-4 w-4" />
-          </button>
-        </div>
       </div>
       
       <div className="p-3">
