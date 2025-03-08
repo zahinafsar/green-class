@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Smile, PaperclipIcon, Send } from "lucide-react"
+import { Smile, Paperclip, Send, Mic } from "lucide-react"
 import { useState } from "react"
 
 interface ChatInputProps {
@@ -25,23 +25,35 @@ export function ChatInput({ onSend }: ChatInputProps) {
   }
 
   return (
-    <div className="border-t p-4">
-      <div className="flex items-end gap-2">
-        <Button variant="ghost" size="icon" className="h-9 w-9">
-          <Smile className="h-5 w-5" />
+    <div className="border-t p-3">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-500">
+          <Paperclip className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
-          <PaperclipIcon className="h-5 w-5" />
-        </Button>
-        <Textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder="Type a message..."
-          className="min-h-[40px] max-h-[200px] resize-none"
-          rows={1}
-        />
-        <Button onClick={handleSend} size="icon" className="h-9 w-9">
+        <div className="flex-1 relative">
+          <input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Write something..."
+            className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
+          />
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+              <Smile className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+              <Mic className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+        <Button 
+          onClick={handleSend} 
+          variant="ghost" 
+          size="icon" 
+          className="h-9 w-9 text-primary"
+          disabled={!message.trim()}
+        >
           <Send className="h-5 w-5" />
         </Button>
       </div>
