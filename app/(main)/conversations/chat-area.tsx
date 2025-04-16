@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Phone, Video, Info, Paperclip, Smile, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Message } from "@/components/chat/message";
+import { Message } from "./message";
 
 interface MessageType {
   id: string;

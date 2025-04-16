@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Search, Video } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CreateSectionModal } from "@/components/sections/CreateSectionModal";
+import { CreateSectionModal } from "./create-section-modal";
 
 interface Contact {
   id: string;

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConversationSidebar } from "@/components/conversation/ConversationSidebar";
-import { ChatArea } from "@/components/conversation/ChatArea";
-import { ProfileSidebar } from "@/components/conversation/ProfileSidebar";
+import { ConversationSidebar } from "./conversation-sidebar";
+import { ChatArea } from "./chat-area";
+import { ProfileSidebar } from "./profile-sidebar";
 import { Message, Contact, MediaItem } from "@/types/conversation";
 
 // Sample data - replace with your actual data source
