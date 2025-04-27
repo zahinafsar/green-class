@@ -1,3 +1,4 @@
+import { User } from '@prisma/client';
 import { SignJWT, jwtVerify } from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -14,10 +15,11 @@ export async function generateToken(payload: any): Promise<string> {
 		.sign(new TextEncoder().encode(JWT_SECRET));
 }
 
-export async function verifyToken(token: string): Promise<any | null> {
+export async function verifyToken(token?: string) {
+	if (!token) return null;
 	try {
 		const { payload } = await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
-		return payload as unknown as any;
+		return payload as unknown as User;
 	} catch (error) {
 		console.error('Error verifying token', error);
 		return null;

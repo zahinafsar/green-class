@@ -8,23 +8,28 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider = "prisma-zod-generator"
+  output   = "../types/prisma-zod-schemas"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
+  id        String     @id @default(uuid())
+  email     String     @unique
   password  String
-  role      Role      @default(STUDENT)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  role      Role       @default(STUDENT)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   sessions  Session[]
-  rooms     Room[]
   messages  Message[]
   student   Student?
   faculty   Faculty?
+  userRoom  UserRoom[]
 }
 
 model Student {
@@ -57,13 +62,26 @@ model Session {
   createdAt DateTime @default(now())
 }
 
+model Section {
+  id         String   @id @default(uuid())
+  batch      String
+  program    String
+  subject    String
+  section    String
+  courseCode String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  room       Room     @relation(fields: [roomId], references: [id])
+  roomId     String   @unique
+}
+
 model Room {
-  id        String    @id @default(uuid())
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  users     User[]
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   messages  Message[]
+  section   Section?
+  userRoom  UserRoom[]
 }
 
 model Message {
@@ -75,6 +93,14 @@ model Message {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   roomId    String
   room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model UserRoom {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 enum Role {

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="512" height="512" fill="#F5F7FA"/>
+    
+    <!-- Classroom board -->
+    <rect x="96" y="80" width="320" height="200" rx="8" fill="#34A853"/>
+    <rect x="106" y="90" width="300" height="180" rx="4" fill="#FFFFFF" stroke="#34A853" stroke-width="2"/>
+    
+    <!-- Teacher's desk -->
+    <rect x="176" y="320" width="160" height="60" rx="4" fill="#4285F4"/>
+    <rect x="186" y="330" width="140" height="40" rx="2" fill="#FFFFFF" stroke="#4285F4" stroke-width="2"/>
+    
+    <!-- Books on desk -->
+    <rect x="196" y="340" width="30" height="20" rx="2" fill="#EA4335"/>
+    <rect x="236" y="340" width="30" height="20" rx="2" fill="#FBBC05"/>
+    <rect x="276" y="340" width="30" height="20" rx="2" fill="#34A853"/>
+    
+    <!-- Writing on board -->
+    <path d="M146 130 H366" stroke="#34A853" stroke-width="4" stroke-linecap="round"/>
+    <path d="M146 170 H286" stroke="#34A853" stroke-width="4" stroke-linecap="round"/>
+    <path d="M146 210 H326" stroke="#34A853" stroke-width="4" stroke-linecap="round"/>
+</svg> 

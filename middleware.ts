@@ -13,10 +13,9 @@ export async function middleware(request: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get('token')?.value;
     const { pathname } = request.nextUrl;
-
     const decodedToken = await verifyToken(token);
 
-    if (!authRoutes.includes(pathname)) {
+    if (!authRoutes.includes(pathname as any)) {
         if (!decodedToken) return NextResponse.redirect(new URL(routes.auth.login, request.url));
     } else {
         if (decodedToken) return NextResponse.redirect(new URL(routes.conversation.index, request.url));

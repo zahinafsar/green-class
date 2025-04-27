@@ -15,6 +15,8 @@ import { login } from "@/service/auth";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { routes } from "@/routes";
+import GoogleAuth from "@/app/(main)/conversations/google-auth";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
@@ -24,7 +26,7 @@ export default function LoginPage() {
     startTransition(async () => {
       try {
         await login(formData);
-        router.push("/conversation");
+        router.push(routes.conversation.index);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Something went wrong");
       }
@@ -42,50 +44,50 @@ export default function LoginPage() {
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
-        <form action={onSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="name@example.com"
-                required
-                autoComplete="email"
-                className="h-11 bg-background/50"
-              />
-            </div>
-            <div className="space-y-2">
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                autoComplete="current-password"
-                className="h-11 bg-background/50"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button
-              disabled={isPending}
-              type="submit"
-              className="w-full h-11 text-base font-medium"
-            >
-              {isPending ? "Signing in..." : "Sign in"}
-            </Button>
-            <div className="text-sm text-muted-foreground text-center">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="text-primary hover:text-primary/80 font-medium transition-colors"
+        <CardContent className="space-y-4">
+          <form action={onSubmit}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  required
+                  autoComplete="email"
+                  className="h-11 bg-background/50"
+                />
+              </div>
+              <div className="space-y-2">
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                  autoComplete="current-password"
+                  className="h-11 bg-background/50"
+                />
+              </div>
+              <Button
+                disabled={isPending}
+                type="submit"
+                className="w-full h-11 text-base font-medium"
               >
-                Create one
-              </Link>
+                {isPending ? "Signing in..." : "Sign in"}
+              </Button>
             </div>
-          </CardFooter>
-        </form>
+          </form>
+          <div className="text-sm text-muted-foreground text-center">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/register"
+              className="text-primary hover:text-primary/80 font-medium transition-colors"
+            >
+              Create one
+            </Link>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );

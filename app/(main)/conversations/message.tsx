@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuth } from "@/hooks/auth"
 
 interface MessageProps {
   message: {
@@ -43,9 +44,8 @@ export function Message({ message, isOwn = false }: MessageProps) {
                 ? "bg-primary text-white rounded-tr-none"
                 : "bg-gray-200 text-gray-800 rounded-tl-none"
             )}
-          >
-            {message.content}
-          </div>
+            dangerouslySetInnerHTML={{ __html: message.content }}
+          />
           {isOwn && (
             <span className="text-xs text-gray-500 text-right mr-1">
               {new Date(message.timestamp).toLocaleTimeString([], {
