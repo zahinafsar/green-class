@@ -13,7 +13,7 @@ export const generateAIResponse = async (prompt: string): Promise<string> => {
       model: "mistralai/mistral-7b-instruct",
       messages: [{ role: "user", content: prompt }],
     });
-    return response.choices[0].message.content || prompt;
+    return response.choices[0]?.message?.content || prompt;
   } catch (error) {
     return prompt;
   }
