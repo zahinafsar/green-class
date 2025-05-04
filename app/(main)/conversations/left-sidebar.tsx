@@ -6,8 +6,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { CreateSectionModal } from "./create";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
-  getMyConversations,
-  getNewConversations,
+  getConversations,
   joinSectionRoom,
 } from "./actions";
 import Link from "next/link";
@@ -25,7 +24,7 @@ export function ConversationSidebar() {
   const myConversations = useQuery({
     queryKey: ["my-conversations"],
     queryFn: async () => {
-      const res = await getMyConversations();
+      const res = await getConversations();
       return res;
     },
   });
@@ -33,7 +32,7 @@ export function ConversationSidebar() {
   const newConversations = useQuery({
     queryKey: ["new-conversations", search],
     queryFn: async () => {
-      const res = await getNewConversations({ search });
+      const res = await getConversations({ search });
       return res;
     },
   });
@@ -155,7 +154,7 @@ export function ConversationSidebar() {
 }
 
 const generateConversationName = (
-  room: Awaited<ReturnType<typeof getMyConversations>>[number]
+  room: Awaited<ReturnType<typeof getConversations>>[number]
 ) => {
   if (room.section) {
     return `${room.section.batch}-${room.section.courseCode}-${room.section.section}`;

@@ -65,82 +65,20 @@ export const createSectionRoom = async (data: Partial<Section>) => {
     }
 }
 
-export const getMyConversations = async () => {
+export const getConversations = async (props?: { search?: string }) => {
     const session = await auth();
     return prisma.room.findMany({
         where: {
-            userRoom: {
-                some: {
-                    userId: session.id
-                }
-            }
-        },
-        select: {
-            id: true,
-            section: {
-                select: {
-                    batch: true,
-                    program: true,
-                    subject: true,
-                    courseCode: true,
-                    section: true,
-                }
-            },
-            userRoom: {
-                where: {
-                    userId: {
-                        not: session.id
-                    }
-                },
-                select: {
-                    id: true,
-                    user: {
-                        select: {
-                            student: {
-                                select: {
-                                    id: true,
-                                    fullName: true,
-                                }
-                            },
-                            faculty: {
-                                select: {
-                                    id: true,
-                                    fullName: true
-                                }
-                            }
-                        }
-                    },
-                },
-                take: 1
-            },
-            messages: {
-                select: {
-                    content: true,
-                    createdAt: true,
-                },
-                take: 1,
-                orderBy: {
-                    createdAt: 'desc'
-                }
-            }
-        }
-    })
-}
-
-export const getNewConversations = async ({ search }: { search?: string }) => {
-    const session = await auth();
-    return prisma.room.findMany({
-        where: {
-            ...(search ? {
+            ...(props?.search ? {
                 OR: [
                     {
                         section: {
                             OR: [
-                                { batch: { contains: search, mode: 'insensitive' } },
-                                { program: { contains: search, mode: 'insensitive' } },
-                                { subject: { contains: search, mode: 'insensitive' } },
-                                { courseCode: { contains: search, mode: 'insensitive' } },
-                                { section: { contains: search, mode: 'insensitive' } },
+                                { batch: { contains: props?.search, mode: 'insensitive' } },
+                                { program: { contains: props?.search, mode: 'insensitive' } },
+                                { subject: { contains: props?.search, mode: 'insensitive' } },
+                                { courseCode: { contains: props?.search, mode: 'insensitive' } },
+                                { section: { contains: props?.search, mode: 'insensitive' } },
                             ]
                         }
                     },
@@ -149,14 +87,20 @@ export const getNewConversations = async ({ search }: { search?: string }) => {
                             some: {
                                 user: {
                                     student: {
-                                        fullName: { contains: search, mode: 'insensitive' }
+                                        fullName: { contains: props?.search, mode: 'insensitive' }
                                     }
                                 }
                             }
                         }
                     }
                 ]
-            } : {})
+            } : {
+                userRoom: {
+                    some: {
+                        userId: session.id
+                    }
+                }
+            })
         },
         select: {
             id: true,
