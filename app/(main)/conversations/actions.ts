@@ -25,67 +25,6 @@ export const sendMessage = async (props: { roomId: string, content: string }) =>
     })
 }
 
-export const getMessages = async (props: { roomId?: string | null }) => {
-    const session = await auth();
-    if (!props.roomId) return null;
-    const data = await prisma.room.findFirst({
-        where: {
-            id: props.roomId
-        },
-        select: {
-            section: {
-                select: {
-                    batch: true,
-                    courseCode: true,
-                    section: true,
-                }
-            },
-            userRoom: {
-                select: {
-                    user: {
-                        select: {
-                            student: {
-                                select: {
-                                    fullName: true,
-                                }
-                            },
-                            faculty: {
-                                select: {
-                                    fullName: true,
-                                }
-                            }
-                        }
-                    }
-                },
-                where: {
-                    userId: {
-                        not: session.id
-                    }
-                }
-            },
-            messages: {
-                select: {
-                    id: true,
-                    content: true,
-                    createdAt: true,
-                    user: {
-                        select: {
-                            id: true,
-                            student: {
-                                select: {
-                                    fullName: true,
-                                    id: true,
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    })
-    return data;
-}
-
 export const createSectionRoom = async (data: Partial<Section>) => {
     const validData = SectionCreateWithoutRoomInputObjectSchema.parse(data);
     const session = await auth();
@@ -126,7 +65,7 @@ export const createSectionRoom = async (data: Partial<Section>) => {
     }
 }
 
-export const getConversations = async () => {
+export const getMyConversations = async () => {
     const session = await auth();
     return prisma.room.findMany({
         where: {
@@ -173,7 +112,110 @@ export const getConversations = async () => {
                     },
                 },
                 take: 1
+            },
+            messages: {
+                select: {
+                    content: true,
+                    createdAt: true,
+                },
+                take: 1,
+                orderBy: {
+                    createdAt: 'desc'
+                }
             }
+        }
+    })
+}
+
+export const getNewConversations = async ({ search }: { search?: string }) => {
+    const session = await auth();
+    return prisma.room.findMany({
+        where: {
+            ...(search ? {
+                OR: [
+                    {
+                        section: {
+                            OR: [
+                                { batch: { contains: search, mode: 'insensitive' } },
+                                { program: { contains: search, mode: 'insensitive' } },
+                                { subject: { contains: search, mode: 'insensitive' } },
+                                { courseCode: { contains: search, mode: 'insensitive' } },
+                                { section: { contains: search, mode: 'insensitive' } },
+                            ]
+                        }
+                    },
+                    {
+                        userRoom: {
+                            some: {
+                                user: {
+                                    student: {
+                                        fullName: { contains: search, mode: 'insensitive' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            } : {})
+        },
+        select: {
+            id: true,
+            section: {
+                select: {
+                    batch: true,
+                    program: true,
+                    subject: true,
+                    courseCode: true,
+                    section: true,
+                }
+            },
+            userRoom: {
+                where: {
+                    userId: {
+                        not: session.id
+                    }
+                },
+                select: {
+                    id: true,
+                    user: {
+                        select: {
+                            student: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                }
+                            },
+                            faculty: {
+                                select: {
+                                    id: true,
+                                    fullName: true
+                                }
+                            }
+                        }
+                    },
+                },
+                take: 1
+            },
+            messages: {
+                select: {
+                    content: true,
+                    createdAt: true,
+                },
+                take: 1,
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            }
+        }
+    })
+}
+
+export const joinSectionRoom = async (roomId: string) => {
+    const session = await auth();
+    await prisma.userRoom.create({
+        data: {
+            roomId,
+            userId: session.id
         }
     })
 }

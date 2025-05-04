@@ -1,25 +1,57 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Loader2, Plus, Search, X } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { CreateSectionModal } from "./create";
-import { useQuery } from "@tanstack/react-query";
-import { getConversations } from "./actions";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getMyConversations,
+  getNewConversations,
+  joinSectionRoom,
+} from "./actions";
 import Link from "next/link";
 import { routes } from "@/routes";
+import { formatDistance } from "date-fns";
 import { generateAvatar } from "@/lib/conversation";
+import { debounce } from "lodash";
+import { Button } from "@/components/ui/button";
 
 export function ConversationSidebar() {
+  const [search, setSearch] = useState("");
+  const [searchConversations, setSearchConversations] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const query = useQuery({
-    queryKey: ["sections"],
+  const myConversations = useQuery({
+    queryKey: ["my-conversations"],
     queryFn: async () => {
-      const res = await getConversations();
+      const res = await getMyConversations();
       return res;
     },
   });
+
+  const newConversations = useQuery({
+    queryKey: ["new-conversations", search],
+    queryFn: async () => {
+      const res = await getNewConversations({ search });
+      return res;
+    },
+  });
+
+  const joinMutation = useMutation({
+    mutationFn: joinSectionRoom,
+    onSuccess: () => {
+      myConversations.refetch();
+    },
+  });
+
+  const debouncedSetSearch = debounce((value: string) => {
+    setSearch(value);
+  }, 300);
+
+  const allConversations = searchConversations
+    ? newConversations.data
+    : myConversations.data;
 
   return (
     <>
@@ -36,22 +68,31 @@ export function ConversationSidebar() {
           </div>
           <div className="mt-4 relative">
             <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            {searchConversations && (
+              <button
+                onClick={() => {
+                  setSearchConversations(false);
+                  setSearch("");
+                }}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
             <input
               type="text"
-              placeholder="Search Messenger..."
+              placeholder="Search Conversations..."
               className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm"
+              defaultValue={search}
+              onFocus={() => setSearchConversations(true)}
+              onChange={(e) => debouncedSetSearch(e.target.value)}
             />
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {/* <nav className="flex border-b px-4 py-2">
-            <button className="flex-1 text-gray-500 py-2">Sections</button>
-            <button className="flex-1 text-gray-500 py-2">Groups</button>
-            <button className="flex-1 text-gray-500 py-2">Archive</button>
-          </nav> */}
           <div className="py-2">
-            {query.data?.map((room) => (
+            {allConversations?.map((room) => (
               <Link href={routes.conversation.single(room.id)} key={room.id}>
                 <div
                   className={`flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer ${
@@ -71,12 +112,33 @@ export function ConversationSidebar() {
                       <p className="font-medium truncate">
                         {generateConversationName(room)}
                       </p>
-                      <span className="text-xs text-gray-500">2 hours ago</span>
+                      <span className="text-xs text-gray-500">
+                        {formatDistance(
+                          new Date(),
+                          new Date(room.messages?.[0]?.createdAt ?? new Date())
+                        )}
+                      </span>
                     </div>
                     <p className="text-sm text-gray-500 truncate">
-                      How are you doing today?
+                      {removeHtmlTags(room.messages?.[0]?.content ?? "")}
                     </p>
                   </div>
+                  {searchConversations &&
+                    !myConversations.data?.find((c) => c.id === room.id) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={joinMutation.isPending}
+                        className="ml-2 text-sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          joinMutation.mutate(room.id);
+                        }}
+                      >
+                        Join
+                      </Button>
+                    )}
                 </div>
               </Link>
             ))}
@@ -86,14 +148,14 @@ export function ConversationSidebar() {
       <CreateSectionModal
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        onUpdate={query.refetch}
+        onUpdate={myConversations.refetch}
       />
     </>
   );
 }
 
 const generateConversationName = (
-  room: Awaited<ReturnType<typeof getConversations>>[number]
+  room: Awaited<ReturnType<typeof getMyConversations>>[number]
 ) => {
   if (room.section) {
     return `${room.section.batch}-${room.section.courseCode}-${room.section.section}`;
@@ -106,4 +168,8 @@ const generateConversationName = (
     );
   }
   return "Unknown";
+};
+
+const removeHtmlTags = (text: string) => {
+  return text.replace(/<[^>]*>?/g, "");
 };
