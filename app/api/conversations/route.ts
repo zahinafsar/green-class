@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { NextApiRequest } from 'next-ts-api';
 
 export const getMessages = async (props: { roomId?: string | null }) => {
   const session = await auth();
@@ -63,9 +64,9 @@ export const getMessages = async (props: { roomId?: string | null }) => {
   return data;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextApiRequest<null, { roomId: string }>) {
   try {
-    const { searchParams } = new URL(request.url);
+    const searchParams = await request.nextUrl.searchParams;
     const roomId = searchParams.get('roomId');
     const data = await getMessages({ roomId });
     return NextResponse.json(data);

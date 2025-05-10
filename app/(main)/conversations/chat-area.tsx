@@ -39,9 +39,9 @@ export function ChatArea({ roomId }: ChatAreaProps) {
     queryFn: async () => {
       const res = await api(`conversations`, {
         method: "GET",
-        params: {
-          roomId,
-        },
+        query: {
+          roomId: roomId!,
+        }
       });
       return res.json();
     },
