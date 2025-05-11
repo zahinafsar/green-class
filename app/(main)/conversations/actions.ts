@@ -85,7 +85,7 @@ export const getConversations = async (props?: { search?: string }) => {
                         userRoom: {
                             some: {
                                 user: {
-                                    AND: [
+                                    OR: [
                                         {
                                             student: {
                                                 fullName: { contains: search, mode: 'insensitive' }
