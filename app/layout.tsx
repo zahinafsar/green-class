@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Script
+        {/* <Script
           id="pushalert"
           dangerouslySetInnerHTML={{
             __html: `
@@ -42,7 +42,7 @@ export default function RootLayout({
               }(document, "script"));
             `,
           }}
-        />
+        /> */}
         <TanstackQueryProvider>
           {children}
           <Toaster />
