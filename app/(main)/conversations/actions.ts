@@ -64,19 +64,20 @@ export const createSectionRoom = async (data: Partial<Section>) => {
 }
 
 export const getConversations = async (props?: { search?: string }) => {
+    const search = props?.search?.trim();
     const session = await auth();
-    return prisma.room.findMany({
+    const conversation = await prisma.room.findMany({
         where: {
-            ...(props?.search ? {
-                OR: [
+            ...(search ? {
+                AND: [
                     {
                         section: {
                             OR: [
-                                { batch: { contains: props?.search, mode: 'insensitive' } },
-                                { program: { contains: props?.search, mode: 'insensitive' } },
-                                { subject: { contains: props?.search, mode: 'insensitive' } },
-                                { courseCode: { contains: props?.search, mode: 'insensitive' } },
-                                { section: { contains: props?.search, mode: 'insensitive' } },
+                                { batch: { contains: search, mode: 'insensitive' } },
+                                { program: { contains: search, mode: 'insensitive' } },
+                                { subject: { contains: search, mode: 'insensitive' } },
+                                { courseCode: { contains: search, mode: 'insensitive' } },
+                                { section: { contains: search, mode: 'insensitive' } },
                             ]
                         }
                     },
@@ -84,9 +85,18 @@ export const getConversations = async (props?: { search?: string }) => {
                         userRoom: {
                             some: {
                                 user: {
-                                    student: {
-                                        fullName: { contains: props?.search, mode: 'insensitive' }
-                                    }
+                                    AND: [
+                                        {
+                                            student: {
+                                                fullName: { contains: search, mode: 'insensitive' }
+                                            }
+                                        },
+                                        {
+                                            faculty: {
+                                                fullName: { contains: search, mode: 'insensitive' }
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -95,7 +105,7 @@ export const getConversations = async (props?: { search?: string }) => {
             } : {
                 userRoom: {
                     some: {
-                        userId: session.id
+                        userId: session.id,
                     }
                 }
             })
@@ -150,6 +160,7 @@ export const getConversations = async (props?: { search?: string }) => {
             }
         }
     })
+    return conversation;
 }
 
 export const joinSectionRoom = async (roomId: string) => {
