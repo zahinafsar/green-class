@@ -1,47 +1,60 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("Check if the ui is visible", async ({ page }) => {
-        await page.goto("http://localhost:4200/register");
-    });
 
-    test("Check if the UI is visible", async ({ page }) => {
-          await page.goto("http://localhost:4200/register");
-        const title = page.getByText("Create Account");
-        const emailInput = page.getByRole("textbox", { name: "name@example.com" });
-        const nameInput = page.getByRole("textbox", { name: "Full Name" });
-        const passwordInput = page.getByRole("textbox", { name: "••••••••" });
-        const confirmPasswordInput = page.getByRole("textbox", { name: "••••••••" });
-        const registerButton = page.getByRole("button", { name: "Register" });
+const randomEmail = Math.random().toString(36).substring(2, 15) + '@example.com';
+const randomStudentId = Math.floor(Math.random() * 100000000);
 
-        await expect(title).toBeVisible();
-        await expect(emailInput).toBeVisible();
-        await expect(nameInput).toBeVisible();
-        await expect(passwordInput).toBeVisible();
-        await expect(confirmPasswordInput).toBeVisible();
-        await expect(registerButton).toBeVisible();
-    });
+test('Check registration', async ({ page }) => {
+    await page.goto('http://localhost:4200/register');
+    await page.getByPlaceholder('name@example.com').fill(randomEmail);
+    await page.getByPlaceholder('Full Name').fill('Test User');
+    await page.getByRole('combobox').selectOption('Student');
+    await page.getByPlaceholder('Student ID').fill(randomStudentId.toString());
+    await page.locator('input[type="password"]').nth(0).fill('SecurePass123');
+    await page.locator('input[type="password"]').nth(1).fill('SecurePass123');
+    await page.getByRole('button', { name: 'Create account' }).click();
 
-    test("Successful registration", async ({ page }) => {
+    await expect(page.locator('text=Welcome')).toBeVisible({ timeout: 30000 });
+});
 
- await page.getByRole("textbox", { name: "Email" }).fill("zahin@test.com");
-  await page.getByRole("textbox", { name: "Full Name" }).fill("Zahin Afsar");
-    await page.getByPlaceholder("Password").fill("zahin@123");
-    await page.getByPlaceholder("Confirm Password").fill("zahin@123");
-        await page.getByRole("textbox", { name: "Full Name" }).fill("Zahin Afsar");
-        
-        await page.getByRole("button", { name: "Register" }).click();
+test('Check if show error when passwords do not match', async ({ page }) => {
+    await page.goto('http://localhost:4200/register');
+    await page.getByPlaceholder('name@example.com').fill(randomEmail);
+    await page.getByPlaceholder('Full Name').fill('Test User');
+    await page.getByRole('combobox').selectOption('Student');
+    await page.getByPlaceholder('Student ID').fill(randomStudentId.toString());
+    await page.locator('input[type="password"]').nth(0).fill('SecurePass123');
+    await page.locator('input[type="password"]').nth(1).fill('SecurePass1234');
+    await page.getByRole('button', { name: 'Create account' }).click();
 
-        const successMsg = page.getByText("Account created successfully");
-        await expect(successMsg).toBeVisible({ timeout: 30000 });
-    });
+    const errorText = page.getByText("Passwords do not match");
+    await expect(errorText).toBeVisible({ timeout: 30000 });
+});
 
-    test("Registration with mismatched passwords", async ({ page }) => {
-        await page.getByRole("textbox", { name: "Full Name" }).fill("Zahin Afsar");
-        await page.getByRole("textbox", { name: "Email" }).fill("zahin@test.com");
-        await page.getByPlaceholder("Password").fill("zahin@123");
-        await page.getByPlaceholder("Confirm Password").fill("zahin@123");
-        await page.getByRole("button", { name: "Register" }).click();
+test('Check if show error when student id already exists', async ({ page }) => {
+    await page.goto('http://localhost:4200/register');
+    await page.getByPlaceholder('name@example.com').fill(randomEmail);
+    await page.getByPlaceholder('Full Name').fill('Test User');
+    await page.getByRole('combobox').selectOption('Student');
+    await page.getByPlaceholder('Student ID').fill('12345678');
+    await page.locator('input[type="password"]').nth(0).fill('SecurePass123');
+    await page.locator('input[type="password"]').nth(1).fill('SecurePass123');
+    await page.getByRole('button', { name: 'Create account' }).click();
 
-        const errorMsg = page.getByText("Passwords do not match");
-        await expect(errorMsg).toBeVisible({ timeout: 30000 });
-    });
+    const errorText = page.getByText("Student ID already exists");
+    await expect(errorText).toBeVisible({ timeout: 30000 });
+});
+
+test('Check if show error when email already exists', async ({ page }) => {
+    await page.goto('http://localhost:4200/register');
+    await page.getByPlaceholder('name@example.com').fill('testuser@example.com');
+    await page.getByPlaceholder('Full Name').fill('Existing User');
+    await page.getByRole('combobox').selectOption('Student');
+    await page.getByPlaceholder('Student ID').fill(randomStudentId.toString());
+    await page.locator('input[type="password"]').nth(0).fill('Password123');
+    await page.locator('input[type="password"]').nth(1).fill('Password123');
+    await page.getByRole('button', { name: 'Create account' }).click();
+
+    const errorText = page.getByText("User already exists");
+    await expect(errorText).toBeVisible({ timeout: 30000 });
+});

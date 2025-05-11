@@ -42,7 +42,7 @@ test("Wrong password", async ({ page }) => {
   await passwordInput.fill("zahin@1234");
   await signinButton.click();
 
-  const chatText = page.getByText("Invalid credentials");
+  const errorText = page.getByText("Invalid credentials");
 
-  await expect(chatText).toBeVisible({ timeout: 30000 });
+  await expect(errorText).toBeVisible({ timeout: 30000 });
 });
