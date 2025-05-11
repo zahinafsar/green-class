@@ -3,7 +3,6 @@
 import { auth } from "@/lib/auth";
 import { createClassroomClient } from "@/lib/google";
 import prisma from "@/lib/prisma";
-import { SectionCreateWithoutRoomInputObjectSchema } from "@/types/prisma-zod-schemas/schemas";
 import { Section } from "@prisma/client";
 
 export const sendMessage = async (props: { roomId: string, content: string }) => {
@@ -26,16 +25,15 @@ export const sendMessage = async (props: { roomId: string, content: string }) =>
 }
 
 export const createSectionRoom = async (data: Partial<Section>) => {
-    const validData = SectionCreateWithoutRoomInputObjectSchema.parse(data);
     const session = await auth();
 
     const existingSection = await prisma.section.findFirst({
         where: {
-            batch: validData.batch,
-            courseCode: validData.courseCode,
-            section: validData.section,
-            program: validData.program,
-            subject: validData.subject
+            batch: data.batch,
+            courseCode: data.courseCode,
+            section: data.section,
+            program: data.program,
+            subject: data.subject
         },
         select: {
             roomId: true
@@ -53,7 +51,7 @@ export const createSectionRoom = async (data: Partial<Section>) => {
         await prisma.room.create({
             data: {
                 section: {
-                    create: validData
+                    create: data as any
                 },
                 userRoom: {
                     create: {

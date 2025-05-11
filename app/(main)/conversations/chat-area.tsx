@@ -23,12 +23,11 @@ import { Editor } from "./editor";
 import { generateAIResponse } from "@/service/ai";
 import { api } from "@/lib/api";
 import { ApiRoutes } from "@/types/next-ts-api";
+import { useSearchParams } from "next/navigation";
 
-interface ChatAreaProps {
-  roomId?: string | null;
-}
-
-export function ChatArea({ roomId }: ChatAreaProps) {
+export function ChatArea() {
+  const searchParams = useSearchParams();
+  const roomId = searchParams.get("id");
   const [richText, setRichText] = useState(false);
   const session = useAuth();
   const [message, setMessage] = useState("");

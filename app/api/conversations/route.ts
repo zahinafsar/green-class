@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { NextApiRequest } from 'next-ts-api';
 
-export const getMessages = async (props: { roomId?: string | null }) => {
+const getMessages = async (props: { roomId?: string | null }) => {
   const session = await auth();
   if (!props.roomId) return null;
   const data = await prisma.room.findFirst({
