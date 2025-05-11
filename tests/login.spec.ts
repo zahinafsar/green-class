@@ -18,7 +18,6 @@ test("Check if the ui is visible", async ({ page }) => {
 
 test("Login", async ({ page }) => {
   await page.goto("http://localhost:4200/login");
-
   const emailInput = page.getByRole("textbox", { name: "name@example.com" });
   const passwordInput = page.getByRole("textbox", { name: "••••••••" });
   const signinButton = page.getByRole("button", { name: "Sign in" });
