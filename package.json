@@ -28,6 +28,7 @@
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-select": "^2.2.2",
     "@radix-ui/react-slot": "^1.1.2",
+    "@supabase/ssr": "^0.6.1",
     "@tanstack/react-query": "^5.73.3",
     "@tiptap/extension-blockquote": "^2.11.7",
     "@tiptap/extension-code-block": "^2.11.7",

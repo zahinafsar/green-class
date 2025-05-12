@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Message } from "./message";
 import { sendMessage } from "./actions";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { generateAvatar } from "@/lib/conversation";
 import { useAuth } from "@/hooks/auth";
 import { Editor } from "./editor";
@@ -24,6 +24,7 @@ import { generateAIResponse } from "@/service/ai";
 import { api } from "@/lib/api";
 import { ApiRoutes } from "@/types/next-ts-api";
 import { useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase";
 
 export function ChatArea() {
   const searchParams = useSearchParams();
@@ -36,25 +37,47 @@ export function ChatArea() {
   const messages = useQuery({
     queryKey: ["messages", roomId],
     queryFn: async () => {
-      const res = await api(`conversations`, {
+      const res = await api("messages", {
         method: "GET",
         query: {
           roomId: roomId!,
-        }
+        },
       });
-      return res.json();
+      if (res.ok) return res.json();
+      return null;
     },
-    refetchInterval: 500,
     enabled: !!roomId,
   });
 
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("Message")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "Message",
+          filter: `roomId=eq.${roomId}`,
+        },
+        () => {
+          messages.refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const sendMessageMutation = useMutation({
-    mutationFn: (content: string) => sendMessage({ roomId: roomId!, content }),
-    onSuccess: () => {
+    mutationFn: async (content: string) => {
       setMessage("");
       setPrompt("");
-      messages.refetch();
-    },
+      await sendMessage({ roomId: roomId!, content });
+    }
   });
 
   const generationMutation = useMutation({
@@ -82,14 +105,14 @@ export function ChatArea() {
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage
-              src={generateAvatar(generateConversationName(messages.data))}
-              alt={generateConversationName(messages.data)}
+              src={generateAvatar(generateConversationName(messages?.data))}
+              alt={generateConversationName(messages?.data)}
             />
             <AvatarFallback>+</AvatarFallback>
           </Avatar>
           <div>
             <h2 className="font-medium">
-              {generateConversationName(messages.data)}
+              {generateConversationName(messages?.data)}
             </h2>
             <p className="text-xs text-gray-500">Online</p>
           </div>
@@ -238,7 +261,7 @@ export function ChatArea() {
 }
 
 const generateConversationName = (
-  room?: ApiRoutes["conversations"]["GET"]["response"]
+  room?: ApiRoutes["messages"]["GET"]["response"] | null
 ) => {
   if (!room) return "Unknown";
   if (room.section) {

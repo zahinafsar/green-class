@@ -1,20 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Plus, Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { CreateSectionModal } from "./create";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import {
-  getConversations,
-  joinSectionRoom,
-} from "./actions";
+import { joinSectionRoom } from "./actions";
 import Link from "next/link";
 import { routes } from "@/routes";
 import { formatDistance } from "date-fns";
 import { generateAvatar } from "@/lib/conversation";
 import { debounce } from "lodash";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
+import { ApiRoutes } from "@/types/next-ts-api";
 
 export function ConversationSidebar() {
   const [search, setSearch] = useState("");
@@ -24,16 +23,23 @@ export function ConversationSidebar() {
   const myConversations = useQuery({
     queryKey: ["my-conversations"],
     queryFn: async () => {
-      const res = await getConversations();
-      return res;
+      const res = await api("conversations", {
+        method: "GET",
+      });
+      if (res.ok) return res.json();
+      return null;
     },
   });
 
   const newConversations = useQuery({
     queryKey: ["new-conversations", search],
     queryFn: async () => {
-      const res = await getConversations({ search });
-      return res;
+      const res = await api("conversations", {
+        method: "GET",
+        query: { search },
+      });
+      if (res.ok) return res.json();
+      return null;
     },
   });
 
@@ -154,7 +160,7 @@ export function ConversationSidebar() {
 }
 
 const generateConversationName = (
-  room: Awaited<ReturnType<typeof getConversations>>[number]
+  room: ApiRoutes["conversations"]["GET"]["response"][number]
 ) => {
   if (room.section) {
     return `${room.section.batch}-${room.section.courseCode}-${room.section.section}`;

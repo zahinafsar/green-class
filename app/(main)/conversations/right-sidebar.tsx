@@ -1,8 +1,8 @@
 "use client";
 
+import { api } from "@/lib/api";
 import { GoogleAuth } from "./google-auth";
 import { useQuery } from "@tanstack/react-query";
-import { getClassroomsCourses } from "./actions";
 
 export function RightSidebar() {
   const {
@@ -14,18 +14,13 @@ export function RightSidebar() {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     queryFn: async () => {
-      const courses = await getClassroomsCourses();
-      return courses;
+      const res = await api("google", {
+        method: "GET",
+      });
+      if (res.ok) return res.json();
+      return null;
     },
   });
-
-  if (error) {
-    return (
-      <div className="w-[350px] flex flex-col items-center justify-center border-l">
-        <GoogleAuth />
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -34,6 +29,17 @@ export function RightSidebar() {
       </div>
     );
   }
+
+  if (error || !courses) {
+    return (
+      <div className="w-[350px] flex flex-col items-center justify-center border-l">
+        <GoogleAuth />
+      </div>
+    );
+  }
+
+  console.log(courses);
+  
 
   return (
     <div className="w-[350px] flex flex-col border-l">
