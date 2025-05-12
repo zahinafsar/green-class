@@ -2,8 +2,9 @@ import type { ExtractNextBody, ExtractNextQuery, ExtractNextResponse, ExtractNex
 import { GET as GET_1 } from '../app/api/auth/google/callback/route';
 import { GET as GET_2 } from '../app/api/auth/session/route';
 import { GET as GET_3 } from '../app/api/conversations/route';
-import { GET as GET_4 } from '../app/api/google/route';
-import { GET as GET_5 } from '../app/api/messages/route';
+import { GET as GET_4 } from '../app/api/google/[courseId]/route';
+import { GET as GET_5 } from '../app/api/google/route';
+import { GET as GET_6 } from '../app/api/messages/route';
 
 export type ApiRoutes = {
   'auth/google/callback': {
@@ -27,18 +28,25 @@ export type ApiRoutes = {
       params: ExtractNextParams<typeof GET_3>
     },
   };
-  'google': {
+  'google/[courseId]': {
     GET: {
       response: ExtractNextResponse<typeof GET_4>
       query: ExtractNextQuery<typeof GET_4>
       params: ExtractNextParams<typeof GET_4>
     },
   };
-  'messages': {
+  'google': {
     GET: {
       response: ExtractNextResponse<typeof GET_5>
       query: ExtractNextQuery<typeof GET_5>
       params: ExtractNextParams<typeof GET_5>
+    },
+  };
+  'messages': {
+    GET: {
+      response: ExtractNextResponse<typeof GET_6>
+      query: ExtractNextQuery<typeof GET_6>
+      params: ExtractNextParams<typeof GET_6>
     },
   };
 };

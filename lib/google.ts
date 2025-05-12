@@ -12,9 +12,11 @@ const oauth2Client = new google.auth.OAuth2(
 export const getAuthUrl = async () => {
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
+    prompt: 'consent',
     scope: [
       'https://www.googleapis.com/auth/classroom.courses.readonly',
-      'https://www.googleapis.com/auth/classroom.rosters.readonly'
+      'https://www.googleapis.com/auth/classroom.rosters.readonly',
+      'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly'
     ],
   });
 };

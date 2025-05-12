@@ -117,7 +117,7 @@ export function ChatArea() {
             <p className="text-xs text-gray-500">Online</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="h-9 w-9">
             <Phone className="h-5 w-5" />
           </Button>
@@ -127,7 +127,7 @@ export function ChatArea() {
           <Button variant="ghost" size="icon" className="h-9 w-9">
             <Info className="h-5 w-5" />
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* Messages */}
